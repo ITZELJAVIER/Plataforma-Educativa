@@ -26,6 +26,10 @@ htmlcov/
 .env.*
 !.env.example
 
+# Credenciales de prueba locales (no publicar en el repositorio)
+CREDENCIALES_PRUEBAS.txt
+*CREDENCIALES*.txt
+
 # Bases de datos locales
 *.sqlite
 *.sqlite3
@@ -35,9 +39,19 @@ htmlcov/
 *.log
 logs/
 
+# Estado local del gestor de servicios (PIDs y logs de arranque)
+.run/
+
+# Artefactos de despliegue generados
+plataforma-deploy.tar.gz
+
 # Archivos temporales
 *.tmp
 *.bak
 *.swp
 Thumbs.db
 .DS_Store
+
+# Node / frontend
+node_modules/
+frontend/dist/

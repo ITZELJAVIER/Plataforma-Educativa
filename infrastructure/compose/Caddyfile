@@ -1,0 +1,30 @@
+{
+    email admin@{$DOMAIN}
+}
+
+{$DOMAIN} {
+    encode zstd gzip
+
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /docs* {
+        reverse_proxy backend:8000
+    }
+
+    handle /redoc* {
+        reverse_proxy backend:8000
+    }
+
+    handle /openapi.json {
+        reverse_proxy backend:8000
+    }
+
+    handle {
+        # Vite preview solo acepta Host=localhost por defecto (Vite 8).
+        reverse_proxy frontend:5173 {
+            header_up Host localhost
+        }
+    }
+}

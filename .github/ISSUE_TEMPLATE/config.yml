@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Seguridad y vulnerabilidades
+    url: mailto:am25021820@iteshu.edu.mx
+    about: Reporta problemas de seguridad de forma privada; no uses issues públicos.
+  - name: Guía de despliegue
+    url: https://github.com/ITZELJAVIER/Plataforma-Educativa/blob/main/DEPLOY.md
+    about: Consulta primero la guía de despliegue y solución de problemas.

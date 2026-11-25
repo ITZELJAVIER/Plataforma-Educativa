@@ -1,0 +1,44 @@
+name: Proponer una mejora
+description: Sugiere una funcionalidad nueva o una mejora de la existente.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: ¿Qué problema resuelve?
+      description: Describe la necesidad o limitación actual.
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Propuesta de solución
+      description: Cómo te gustaría que funcionara.
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas consideradas
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área relacionada
+      options:
+        - Backend / API
+        - Frontend / interfaz
+        - Infraestructura / despliegue
+        - Documentación
+        - Otro
+    validations:
+      required: false
+  - type: checkboxes
+    id: openspec
+    attributes:
+      label: Especificación
+      options:
+        - label: Esta propuesta requiere un cambio OpenSpec (propuesta, diseño, specs y tareas).
+          description: El proyecto usa OpenSpec para cambios de comportamiento; ver CONTRIBUTING.md.

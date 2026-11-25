@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía de despliegue — Plataforma Educativa</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 18mm 18mm; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 10.8pt;
+    line-height: 1.48;
+    color: #141414;
+    text-align: justify;
+  }
+
+  .titlepage { text-align: center; margin-top: 8mm; margin-bottom: 10mm; }
+  .titulo { font-size: 24pt; font-weight: normal; margin: 0 0 4mm 0; line-height: 1.15; }
+  .subtitulo { font-size: 13pt; color: #444; font-style: italic; margin: 0 0 8mm 0; }
+  .autor { font-size: 11pt; margin: 0 0 2mm 0; }
+  .fecha { font-size: 10.5pt; color: #555; }
+  .regla { border: 0; border-top: 1.2px solid #222; margin: 8mm 0 6mm 0; }
+
+  .resumen {
+    background: #f3f3ef;
+    border: 1px solid #c9c9c0;
+    padding: 8px 12px;
+    margin: 4mm 0 8mm 0;
+    text-align: justify;
+  }
+  .resumen strong { font-variant: small-caps; letter-spacing: .04em; }
+
+  h2 {
+    font-size: 14pt;
+    font-weight: bold;
+    margin-top: 8mm;
+    margin-bottom: 3mm;
+    border-bottom: 0.5px solid #999;
+    padding-bottom: 1.5mm;
+    text-align: left;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11.5pt;
+    font-weight: bold;
+    margin-top: 5mm;
+    margin-bottom: 2mm;
+    text-align: left;
+    page-break-after: avoid;
+  }
+  p { margin: 0 0 2.5mm 0; }
+  ul, ol { margin: 0 0 3mm 0; padding-left: 7mm; }
+  li { margin-bottom: 1.2mm; }
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 9.5pt;
+    background: #f0f0ec;
+    padding: 0 2px;
+  }
+  pre {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8.9pt;
+    line-height: 1.35;
+    background: #f6f6f3;
+    border-left: 3px solid #4a4a4a;
+    padding: 7px 10px;
+    margin: 2mm 0 3mm 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    page-break-inside: avoid;
+  }
+  .codetitle {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 9pt;
+    color: #555;
+    font-style: italic;
+    margin: 0 0 1mm 0;
+  }
+
+  .nota, .aviso, .consejo {
+    padding: 6px 11px;
+    margin: 3mm 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .nota   { background: #eef3f8; border-left: 4px solid #3b6ea5; }
+  .aviso  { background: #fff3e3; border-left: 4px solid #cf7a20; }
+  .consejo{ background: #edf6ee; border-left: 4px solid #4c8b4c; }
+  .nota b, .aviso b, .consejo b { font-variant: small-caps; letter-spacing: .03em; }
+
+  table { border-collapse: collapse; width: 100%; margin: 3mm 0 4mm 0; font-size: 9.6pt; }
+  thead th { border-top: 1.3px solid #1a1a1a; border-bottom: 0.9px solid #1a1a1a; padding: 5px 6px; text-align: left; font-weight: bold; }
+  tbody td { border-bottom: 0.35px solid #c4c4c4; padding: 4px 6px; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 1.3px solid #1a1a1a; }
+  .centrado { text-align: center; }
+
+  .toc { font-size: 10.2pt; }
+  .toc li { margin-bottom: 1mm; }
+
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 6mm; position: relative; }
+  .check li:before { content: "\2610"; position: absolute; left: 0; font-size: 12pt; }
+
+  .pie { margin-top: 10mm; border-top: 0.5px solid #999; padding-top: 3mm; font-size: 9pt; color: #555; text-align: center; }
+  .salto { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="titlepage">
+  <div class="titulo">Guía paso a paso para publicar la<br>Plataforma Educativa en tu servidor</div>
+  <div class="subtitulo">Despliegue de prueba con Docker, PostgreSQL y HTTPS</div>
+  <div class="autor">Proyecto: Plataforma Educativa IoT</div>
+  <div class="fecha">Versión 1.0 &middot; Noviembre 2026</div>
+</div>
+
+<hr class="regla">
+
+<div class="resumen">
+  <strong>Resumen.</strong> Esta guía explica, desde cero y sin dar nada por sentado, cómo llevar la
+  plataforma que tienes en <code>C:\Plataforma Educativa</code> hasta el dominio
+  <code>sistematizacion.itsoeh.edu.mx</code>. Se explica qué es cada pieza (DNS, SSH, Docker,
+  PostgreSQL, HTTPS), qué comandos escribir, qué respuesta esperar y qué hacer cuando algo no
+  sale como se esperaba. Al final tendrás la aplicación accesible por HTTPS con tres usuarios de
+  prueba listos para iniciar sesión.
+</div>
+
+<h2>Contenido</h2>
+<ol class="toc">
+  <li>Qué vamos a hacer exactamente</li>
+  <li>Pequeño glosario (para no perderse)</li>
+  <li>Comprobación previa: lo que necesitas tener</li>
+  <li>Fase 1 &mdash; Comprobar que el dominio apunta a tu servidor</li>
+  <li>Fase 2 &mdash; Abrir los puertos 80 y 443</li>
+  <li>Fase 3 &mdash; Instalar Docker en el servidor</li>
+  <li>Fase 4 &mdash; Subir el proyecto al servidor</li>
+  <li>Fase 5 &mdash; Crear y configurar el archivo <code>.env</code></li>
+  <li>Fase 6 &mdash; Validar y levantar los servicios</li>
+  <li>Fase 7 &mdash; Comprobar que todo funciona</li>
+  <li>Fase 8 &mdash; Uso diario: estado, logs, reinicio y actualización</li>
+  <li>Solución de problemas frecuentes</li>
+  <li>Seguridad: lo que debes cambiar antes de un uso real</li>
+  <li>Apéndice A &mdash; Hoja de comandos</li>
+  <li>Apéndice B &mdash; Credenciales y rutas importantes</li>
+</ol>
+
+<div class="salto"></div>
+
+<h2>1. Qué vamos a hacer exactamente</h2>
+
+<p>
+  Imagina que tu aplicación es una tienda que hoy está funcionando solo en tu casa (en tu equipo
+  Windows). Quieres mudarla a un local propio en Internet para que cualquiera pueda visitarla
+  escribiendo <code>sistematizacion.itsoeh.edu.mx</code>. Para eso necesitamos cuatro cosas:
+</p>
+
+<ul>
+  <li><b>El local:</b> tu servidor Linux (al que entras por SSH).</li>
+  <li><b>La señalización:</b> el DNS, que es el que dice &laquo;ese nombre de dominio corresponde a esta IP&raquo;.</li>
+  <li><b>La mudanza:</b> copiar los archivos del proyecto al servidor.</li>
+  <li><b>La puerta y el letrero:</b> un &laquo;reverse proxy&raquo; que recibe a los visitantes por HTTPS y los reparte entre la página web y la API.</li>
+</ul>
+
+<p>
+  En el servidor se levantarán <b>cuatro contenedores</b> (piezas de software aisladas, como cajas
+  independientes dentro de una misma máquina):
+</p>
+
+<table>
+  <thead><tr><th>Contenedor</th><th>Qué es</th><th>Para qué sirve</th></tr></thead>
+  <tbody>
+    <tr><td><code>db</code></td><td>PostgreSQL 16</td><td>Guarda usuarios, dispositivos y eventos de forma permanente.</td></tr>
+    <tr><td><code>backend</code></td><td>FastAPI (Python)</td><td>Es la lógica de la aplicación: login, roles, dispositivos, catálogo.</td></tr>
+    <tr><td><code>frontend</code></td><td>React + Vite</td><td>Es la página web que ve el usuario en el navegador.</td></tr>
+    <tr><td><code>proxy</code></td><td>Caddy</td><td>Entrega el certificado HTTPS y dirige el tráfico al frontend o al backend.</td></tr>
+  </tbody>
+</table>
+
+<div class="nota">
+  <b>Nota.</b> Caddy es el único componente que no estaba en el stack original. Lo añadimos porque
+  es la forma más sencilla de obtener HTTPS automático (certificado de Let's Encrypt) sin
+  configurar manualmente certificados ni renovarlos.
+</div>
+
+<h2>2. Pequeño glosario (para no perderse)</h2>
+
+<table>
+  <thead><tr><th>Término</th><th>En palabras sencillas</th></tr></thead>
+  <tbody>
+    <tr><td>Dominio / DNS</td><td>El nombre legible (<code>sistematizacion.itsoeh.edu.mx</code>) y el sistema que lo traduce a una dirección IP.</td></tr>
+    <tr><td>Registro A</td><td>La línea del DNS que dice &laquo;este nombre va a esta IP&raquo;.</td></tr>
+    <tr><td>SSH</td><td>La forma de conectarte al servidor desde una terminal, como si estuvieras sentado frente a él.</td></tr>
+    <tr><td>sudo / root</td><td>Permisos de administrador. Con ellos puedes instalar software y abrir puertos.</td></tr>
+    <tr><td>Docker</td><td>Herramienta que empaqueta cada parte de la aplicación en una &laquo;caja&raquo; lista para ejecutar.</td></tr>
+    <tr><td>Docker Compose</td><td>Archivo que describe todas las cajas y cómo se conectan entre sí.</td></tr>
+    <tr><td>PostgreSQL</td><td>La base de datos donde se guarda la información de forma persistente.</td></tr>
+    <tr><td>HTTP / HTTPS</td><td>HTTP es la web sin cifrar; HTTPS es la misma web con certificado (el candadito del navegador).</td></tr>
+    <tr><td>Reverse proxy</td><td>Un &laquo;recepcionista&raquo; que está en la entrada y reparte a cada visitante al servicio correcto.</td></tr>
+    <tr><td>Variable de entorno</td><td>Un valor de configuración que se le pasa al programa desde fuera (por ejemplo, la contraseña de la base de datos).</td></tr>
+    <tr><td>Volumen</td><td>Una carpeta especial de Docker que conserva los datos aunque el contenedor se apague.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Comprobación previa: lo que necesitas tener</h2>
+
+<p>Antes de escribir un solo comando, confirma que tienes esto a la mano:</p>
+
+<ul class="check">
+  <li>El dominio <code>sistematizacion.itsoeh.edu.mx</code> (fíjate: lleva <b>ación</b>, no solo <b>ci</b>: es <code>sistematizacion</code>, no <code>sistematizcion</code>).</li>
+  <li>Acceso al DNS del dominio (por si hay que crear o corregir el registro A).</li>
+  <li>La IP pública del servidor y tus datos de acceso SSH (usuario y contraseña o clave).</li>
+  <li>Que tu usuario pueda usar <code>sudo</code> (o que entres directamente como <code>root</code>).</li>
+  <li>La carpeta <code>C:\Plataforma Educativa</code> en tu Windows con el proyecto completo.</li>
+  <li>Un poco de paciencia: la primera vez, descargar imágenes y generar el certificado puede tardar varios minutos.</li>
+</ul>
+
+<div class="aviso">
+  <b>Advertencia.</b> No hagas esto en un servidor de producción con datos reales todavía. Es una
+  prueba. Las contraseñas que vienen por defecto son de prueba y se explican en la sección 13.
+</div>
+
+<div class="salto"></div>
+
+<h2>4. Fase 1 &mdash; Comprobar que el dominio apunta a tu servidor</h2>
+
+<p>
+  Esta es la comprobación más importante. Si el nombre de dominio no apunta a tu servidor, Caddy
+  no podrá obtener el certificado HTTPS y la página no cargará. Lo verificamos desde tu Windows y,
+  después, desde el propio servidor.
+</p>
+
+<h3>4.1 Desde tu Windows</h3>
+<p>Abre PowerShell (botón de Inicio &rarr; escribe <code>powershell</code> &rarr; Enter) y escribe:</p>
+<pre>nslookup sistematizacion.itsoeh.edu.mx</pre>
+<p>
+  Debes ver una sección llamada <code>Respuestas no autoritativas:</code> con una o varias
+  direcciones <code>Dirección:</code> seguidas de una IP. Esa IP debe ser la IP pública de tu
+  servidor.
+</p>
+
+<h3>4.2 Desde el servidor</h3>
+<p>Conéctate por SSH (sustituye <code>usuario</code> y <code>IP_DEL_SERVIDOR</code>):</p>
+<pre>ssh usuario@IP_DEL_SERVIDOR
+dig +short sistematizacion.itsoeh.edu.mx</pre>
+<p>
+  Si <code>dig</code> no está instalado, funciona igual con <code>nslookup sistematizacion.itsoeh.edu.mx</code>.
+  La orden debe devolver directamente una IP. Si no devuelve nada, el registro aún no existe o no ha
+  terminado de propagarse.
+</p>
+
+<div class="consejo">
+  <b>Consejo.</b> Si no tienes <code>dig</code>, instálalo con
+  <code>sudo apt install -y dnsutils</code> y vuelve a intentarlo.
+</div>
+
+<h3>4.3 Si el dominio no resuelve</h3>
+<p>
+  Entra al panel donde administras el DNS (puede ser el de tu proveedor de dominio, Cloudflare,
+  etc.) y crea o corrige un registro de tipo <b>A</b>:
+</p>
+<table>
+  <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+  <tbody>
+    <tr><td>Tipo</td><td>A</td></tr>
+    <tr><td>Nombre / Host</td><td><code>sistematizacion</code> (o <code>@</code> si el panel usa el dominio completo)</td></tr>
+    <tr><td>Valor / Destino</td><td>La IP pública de tu servidor</td></tr>
+    <tr><td>TTL</td><td>3600 (una hora) o el valor por defecto</td></tr>
+  </tbody>
+</table>
+<p>
+  Después de guardar, los cambios de DNS pueden tardar desde unos minutos hasta unas horas en
+  propagarse. Vuelve a ejecutar <code>dig +short</code> hasta que devuelva la IP correcta antes de
+  continuar con la Fase 6.
+</p>
+
+<h2>5. Fase 2 &mdash; Abrir los puertos 80 y 443</h2>
+
+<p>
+  Caddy necesita el <b>puerto 80</b> para hablar con Let's Encrypt y demostrar que el dominio es
+  tuyo; después usa el <b>puerto 443</b> para servir la web cifrada. Si estos puertos están cerrados,
+  el certificado nunca se emitirá.
+</p>
+
+<h3>5.1 Si el servidor usa UFW (lo habitual en Ubuntu)</h3>
+<pre>sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw status</pre>
+<p>En la salida de <code>sudo ufw status</code> deben aparecer dos líneas con <code>ALLOW IN</code> para 80 y 443.</p>
+
+<h3>5.2 Si usa firewalld (habitual en CentOS/RHEL/Fedora)</h3>
+<pre>sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-services</pre>
+
+<h3>5.3 Si tu proveedor tiene firewall externo</h3>
+<p>
+  Muchos proveedores (AWS, Azure, Google Cloud, OVH, DigitalOcean) tienen además un firewall en su
+  panel de control. Entra al panel y asegúrate de permitir el tráfico entrante TCP en los puertos
+  80 y 443 desde <code>0.0.0.0/0</code> (cualquier origen). Si solo abres el firewall del sistema pero
+  no el del proveedor, seguirá sin funcionar.
+</p>
+
+<div class="aviso">
+  <b>Advertencia.</b> Si ya tienes Apache o Nginx escuchando en el puerto 80 o 443, Caddy no podrá
+  usarlos. Comprueba con <code>sudo ss -tulpen | grep -E ':80|:443'</code>. Si aparece otro programa,
+  hay que pararlo o cambiar el plan (por ejemplo, usar el proxy que ya tengas).
+</div>
+
+<div class="salto"></div>
+
+<h2>6. Fase 3 &mdash; Instalar Docker en el servidor</h2>
+
+<p>
+  Si todavía no lo tienes, ejecuta estos comandos uno por uno. Son los pasos oficiales para
+  Ubuntu/Debian. Pulsa Enter después de cada línea y espera a que termine antes de pasar a la
+  siguiente.
+</p>
+
+<pre>sudo apt update &amp;&amp; sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release &amp;&amp; echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list &gt;/dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER</pre>
+
+<div class="nota">
+  <b>Nota.</b> El último comando añade tu usuario al grupo <code>docker</code> para que no tengas que
+  escribir <code>sudo</code> delante de cada orden. Para que aplique, <b>cierra la sesión SSH y vuelve a entrar</b>.
+</div>
+
+<p>Comprueba que quedó bien instalado:</p>
+<pre>docker --version
+docker compose version</pre>
+<p>Ambos comandos deben mostrar un número de versión. Si <code>docker compose version</code> dice que no existe el comando, instala también el plugin: <code>sudo apt install -y docker-compose-plugin</code>.</p>
+
+<h2>7. Fase 4 &mdash; Subir el proyecto al servidor</h2>
+
+<p>
+  Ahora vamos a copiar los archivos desde tu Windows al servidor. Te doy dos formas: la rápida
+  (recomendada) y la visual, por si te resulta más cómoda.
+</p>
+
+<h3>7.1 Opción A: con PowerShell (recomendada)</h3>
+<p>
+  <b>Paso A1.</b> En tu Windows, abre PowerShell dentro de la carpeta del proyecto. Si no sabes
+  cómo, abre PowerShell y escribe:
+</p>
+<pre>cd "C:\Plataforma Educativa"</pre>
+
+<p><b>Paso A2.</b> Crea un archivo comprimido sin las carpetas pesadas:</p>
+<pre>tar -czf plataforma-deploy.tar.gz --exclude=node_modules --exclude=.venv --exclude=.run --exclude=__pycache__ --exclude=.git -C "C:\Plataforma Educativa" .</pre>
+
+<p>
+  <b>Qué hace este comando:</b> <code>-czf</code> crea un <code>.tar.gz</code>; cada
+  <code>--exclude</code> evita meter archivos que no hacen falta y que ocupan mucho
+  (<code>node_modules</code> se reinstalará dentro de Docker). Se creará el archivo
+  <code>plataforma-deploy.tar.gz</code> en la misma carpeta.
+</p>
+
+<p><b>Paso A3.</b> Cópialo al servidor (sustituye usuario e IP):</p>
+<pre>scp plataforma-deploy.tar.gz usuario@IP_DEL_SERVIDOR:/tmp/</pre>
+<p>Te pedirá la contraseña del servidor y luego verás una barra de progreso.</p>
+
+<p><b>Paso A4.</b> En el servidor, descomprime y entra en la carpeta:</p>
+<pre>sudo mkdir -p /opt/plataforma-educativa
+sudo tar -xzf /tmp/plataforma-deploy.tar.gz -C /opt/plataforma-educativa
+sudo chown -R $USER:$USER /opt/plataforma-educativa
+cd /opt/plataforma-educativa
+ls</pre>
+<p>
+  El último <code>ls</code> debe mostrar, entre otros, <code>backend</code>, <code>frontend</code>,
+  <code>infrastructure</code>, <code>.env.example</code>, <code>DEPLOY.md</code> y
+  <code>CREDENCIALES_PRUEBAS.txt</code>. Si no aparecen, el archivo se descomprimió en otro sitio:
+  revisa que estés en <code>/opt/plataforma-educativa</code> con <code>pwd</code>.
+</p>
+
+<h3>7.2 Opción B: con WinSCP (más visual)</h3>
+<p>
+  Si te resulta más fácil trabajar con ventanas: instala WinSCP, conéctate al servidor con tus datos
+  SSH, crea la carpeta <code>/opt/plataforma-educativa</code> y arrastra hacia ella el contenido de
+  <code>C:\Plataforma Educativa</code> (excepto <code>.venv</code>, <code>node_modules</code> y
+  <code>.run</code>). Después entra por SSH y ejecuta el <code>chown</code> y el <code>cd</code> del
+  paso A4.
+</p>
+
+<div class="salto"></div>
+
+<h2>8. Fase 5 &mdash; Crear y configurar el archivo <code>.env</code></h2>
+
+<p>
+  El archivo <code>.env</code> contiene los &laquo;secretos&raquo; y la configuración del despliegue.
+  No está en el paquete que subiste (por seguridad), pero sí está el ejemplo. Lo creamos ahora.
+</p>
+
+<h3>8.1 Crear el archivo</h3>
+<pre>cp .env.example .env
+nano .env</pre>
+
+<p>
+  <code>nano</code> es un editor de texto sencillo que viene en el servidor. Muévete con las flechas.
+  Cuando termines de editar:
+</p>
+<ul>
+  <li>Guardar: <code>Ctrl + O</code> y después <code>Enter</code>.</li>
+  <li>Salir: <code>Ctrl + X</code>.</li>
+</ul>
+
+<h3>8.2 Qué debes revisar en el archivo</h3>
+
+<table>
+  <thead><tr><th>Variable</th><th>Qué hace</th><th>Qué hacer con ella</th></tr></thead>
+  <tbody>
+    <tr><td><code>DOMAIN</code></td><td>El dominio donde estará la app</td><td>Déjala como viene: <code>sistematizacion.itsoeh.edu.mx</code>.</td></tr>
+    <tr><td><code>POSTGRES_DB</code></td><td>Nombre de la base de datos</td><td>No hace falta cambiarla.</td></tr>
+    <tr><td><code>POSTGRES_USER</code></td><td>Usuario de la base de datos</td><td>No hace falta cambiarlo.</td></tr>
+    <tr><td><code>POSTGRES_PASSWORD</code></td><td>Contraseña de la base de datos</td><td><b>CÁMBIALA OBLIGATORIAMENTE.</b> Reemplaza <code>CambiarEstaContraseña</code> por otra.</td></tr>
+    <tr><td><code>SESSION_TTL_SECONDS</code></td><td>Duración de la sesión (8 horas)</td><td>Déjala como viene.</td></tr>
+    <tr><td><code>CORS_ALLOWED_ORIGINS</code></td><td>Quién puede llamar a la API desde el navegador</td><td>Ya apunta a tu dominio HTTPS.</td></tr>
+    <tr><td><code>VITE_API_BASE_URL</code></td><td>Dirección de la API que se compila dentro de la web</td><td>Ya apunta a <code>https://sistematizacion.itsoeh.edu.mx/api/v1</code>.</td></tr>
+    <tr><td><code>INITIAL_*_PASSWORD</code></td><td>Contraseñas de los tres usuarios de prueba</td><td>Déjalas para la prueba; cámbialas para uso real.</td></tr>
+  </tbody>
+</table>
+
+<h3>8.3 Generar una contraseña segura para PostgreSQL</h3>
+<p>Si quieres una contraseña buena sin inventarla, ejecuta antes en el servidor:</p>
+<pre>openssl rand -base64 24</pre>
+<p>Copia el resultado y pégalo como valor de <code>POSTGRES_PASSWORD</code> (sin comillas ni espacios).</p>
+
+<div class="aviso">
+  <b>Advertencia.</b> El script de despliegue se negará a continuar si la contraseña sigue siendo
+  <code>CambiarEstaContraseña</code>. Es una protección para que no te quede la contraseña por defecto.
+  Tampoco subas nunca el archivo <code>.env</code> a GitHub ni lo compartas.
+</div>
+
+<h2>9. Fase 6 &mdash; Validar y levantar los servicios</h2>
+
+<h3>9.1 Primero validamos el archivo de orquestación</h3>
+<pre>docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml config</pre>
+<p>
+  Este comando no levanta nada: solo comprueba que el archivo esté bien escrito y que todas las
+  variables existan. Si está correcto, verás en pantalla una descripción larga de los cuatro
+  servicios. Si falta una variable, el comando lo dirá claramente.
+</p>
+
+<h3>9.2 Ahora sí, desplegamos</h3>
+<pre>bash infrastructure/deploy.sh</pre>
+<p>Este script hace tres cosas en orden:</p>
+<ol>
+  <li>Valida el compose (igual que el paso anterior).</li>
+  <li>Construye las imágenes del backend y del frontend y levanta los cuatro contenedores.</li>
+  <li>Muestra el estado final de los servicios.</li>
+</ol>
+
+<p>La primera vez verás muchas líneas de descarga e instalación. Es normal que tarde entre 3 y 10 minutos.</p>
+
+<div class="nota">
+  <b>Nota.</b> El certificado de Let's Encrypt se genera en el primer arranque. Si el navegador
+  muestra una página de error de certificado durante el primer minuto, espera un poco y recarga.
+  Puedes seguir el proceso con:
+  <pre style="margin-top:4px">docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml logs -f proxy</pre>
+  Para salir de los logs, pulsa <code>Ctrl + C</code>.
+</div>
+
+<div class="salto"></div>
+
+<h2>10. Fase 7 &mdash; Comprobar que todo funciona</h2>
+
+<p>Haz estas cuatro comprobaciones, en este orden.</p>
+
+<h3>10.1 La página principal responde</h3>
+<pre>curl -I https://sistematizacion.itsoeh.edu.mx/</pre>
+<p>La primera línea debe decir <code>HTTP/2 200</code> o <code>HTTP/1.1 200 OK</code>.</p>
+
+<h3>10.2 La API responde</h3>
+<pre>curl -s https://sistematizacion.itsoeh.edu.mx/openapi.json | head -c 200</pre>
+<p>Debe mostrar texto que empieza con <code>{"openapi":</code> y el título de la API. Esa es la documentación automática de los endpoints.</p>
+
+<h3>10.3 El login funciona</h3>
+<pre>curl -X POST https://sistematizacion.itsoeh.edu.mx/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"id":"admin","password":"dev-admin"}'</pre>
+<p>Debe devolver algo parecido a <code>{"token":"..."}</code>. Ese token es tu sesión.</p>
+
+<h3>10.4 Entrar desde el navegador</h3>
+<ol>
+  <li>Abre <code>https://sistematizacion.itsoeh.edu.mx/</code>.</li>
+  <li>Inicia sesión con <code>admin</code> / <code>dev-admin</code>.</li>
+  <li>Comprueba que ves el menú de administrador (con Usuarios, Dispositivos y Catálogo).</li>
+  <li>Repite con <code>docente</code> / <code>clave-docente</code> y con <code>estudiante</code> / <code>clave-estudiante</code>. El menú debe ser más limitado.</li>
+</ol>
+
+<p class="consejo" style="background:#edf6ee;border-left:4px solid #4c8b4c;padding:6px 11px;margin:3mm 0;">
+  <b>Consejo.</b> Si la página abre pero el login falla, abre también
+  <code>https://sistematizacion.itsoeh.edu.mx/docs</code>. Ahí puedes probar los endpoints desde la
+  propia documentación y ver el error exacto.
+</p>
+
+<div class="check">
+  <p><b>Lista de éxito:</b></p>
+  <ul>
+    <li>El dominio abre por HTTPS con candado.</li>
+    <li><code>/openapi.json</code> devuelve JSON.</li>
+    <li>Los tres usuarios inician sesión con su rol correcto.</li>
+    <li>Los cuatro contenedores aparecen como <code>Up</code> en <code>docker compose ps</code>.</li>
+  </ul>
+</div>
+
+<h2>11. Fase 8 &mdash; Uso diario: estado, logs, reinicio y actualización</h2>
+
+<p>Guarda estos comandos; son los que usarás normalmente. Ejecútalos siempre dentro de <code>/opt/plataforma-educativa</code>.</p>
+
+<pre># Ver el estado de los cuatro contenedores
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml ps
+
+# Ver logs en directo (Ctrl+C para salir)
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml logs -f backend
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml logs -f proxy
+
+# Reiniciar solo la API
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml restart backend
+
+# Parar todo SIN borrar la base de datos
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml down
+
+# Volver a levantar tras haber copiado cambios al servidor
+bash infrastructure/deploy.sh</pre>
+
+<div class="aviso">
+  <b>Advertencia.</b> El comando <code>down -v</code> sí borra el volumen de PostgreSQL, es decir,
+  <b>elimina todos los datos</b> y hace que los usuarios de prueba se creen de nuevo al levantar.
+  Úsalo solo si quieres empezar desde cero.
+</div>
+
+<div class="salto"></div>
+
+<h2>12. Solución de problemas frecuentes</h2>
+
+<table>
+  <thead><tr><th>Lo que ves</th><th>Causa probable</th><th>Qué hacer</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Caddy no genera certificado / el navegador dice &laquo;no es seguro&raquo;.</td>
+      <td>El DNS no apunta al servidor o el puerto 80 está cerrado.</td>
+      <td>Ejecuta <code>dig +short sistematizacion.itsoeh.edu.mx</code>, abre el 80 y revisa <code>logs -f proxy</code>.</td>
+    </tr>
+    <tr>
+      <td>Error 502 en <code>/api</code>.</td>
+      <td>El backend no arrancó; casi siempre falta una variable de entorno.</td>
+      <td>Revisa <code>logs -f backend</code>. <code>SESSION_TTL_SECONDS</code> y <code>POSTGRES_PASSWORD</code> son obligatorias.</td>
+    </tr>
+    <tr>
+      <td>El script dice &laquo;cambia POSTGRES_PASSWORD&raquo;.</td>
+      <td>Sigues con el valor de ejemplo.</td>
+      <td>Edita <code>.env</code> y pon una contraseña real con <code>openssl rand -base64 24</code>.</td>
+    </tr>
+    <tr>
+      <td>El login devuelve &laquo;Credenciales no válidas&raquo;.</td>
+      <td>Los usuarios iniciales solo se crean si la base está vacía, o la contraseña cambió.</td>
+      <td>Si ya habías creado usuarios, usa los tuyos; para reiniciar la prueba, <code>down -v</code> y vuelve a desplegar.</td>
+    </tr>
+    <tr>
+      <td>El build falla al instalar dependencias de Python.</td>
+      <td>El intérprete no tiene ruedas binarias disponibles.</td>
+      <td>El Dockerfile ya usa <code>python:3.13-slim</code>, que es el verificado. Si lo cambiaste, vuelve a 3.13.</td>
+    </tr>
+    <tr>
+      <td>&laquo;address already in use&raquo; al levantar.</td>
+      <td>Otro programa (Apache/Nginx) ocupa el 80 o el 443.</td>
+      <td>Para el otro servicio con <code>sudo systemctl stop apache2</code> o <code>nginx</code> y vuelve a desplegar.</td>
+    </tr>
+    <tr>
+      <td>La web carga pero las llamadas a la API son bloqueadas.</td>
+      <td>Estás abriendo por IP en vez de por dominio y CORS no lo permite.</td>
+      <td>Usa siempre el dominio, o añade el origen a <code>CORS_ALLOWED_ORIGINS</code> y reinicia el backend.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>13. Seguridad: lo que debes cambiar antes de un uso real</h2>
+
+<ul>
+  <li><b>Cambia las tres contraseñas de prueba</b> (<code>dev-admin</code>, <code>clave-docente</code>, <code>clave-estudiante</code>) usando las variables <code>INITIAL_*_PASSWORD</code> de <code>.env</code> antes del primer arranque, o cámbialas desde la API.</li>
+  <li><b>No compartas ni subas <code>.env</code></b>: contiene la contraseña de PostgreSQL y las de los usuarios.</li>
+  <li><b>Las contraseñas nunca se guardan en claro</b>: se almacenan con PBKDF2-HMAC-SHA256, 200.000 iteraciones y sal aleatoria por usuario.</li>
+  <li><b>Las sesiones duran 8 horas</b> y se pueden cerrar con <code>/api/v1/auth/logout</code>.</li>
+  <li><b>Recuerda que es un despliegue de prueba</b>: cuando pases a producción, revisa copias de seguridad de PostgreSQL y limita quién tiene acceso SSH.</li>
+</ul>
+
+<div class="salto"></div>
+
+<h2>Apéndice A &mdash; Hoja de comandos</h2>
+
+<p>Para copiar y pegar rápidamente. Sustituye <code>usuario</code> e <code>IP_DEL_SERVIDOR</code> por tus datos.</p>
+
+<pre># ---- Desde tu Windows (PowerShell) ----
+cd "C:\Plataforma Educativa"
+tar -czf plataforma-deploy.tar.gz --exclude=node_modules --exclude=.venv --exclude=.run --exclude=__pycache__ --exclude=.git -C "C:\Plataforma Educativa" .
+scp plataforma-deploy.tar.gz usuario@IP_DEL_SERVIDOR:/tmp/
+ssh usuario@IP_DEL_SERVIDOR
+
+# ---- Desde el servidor ----
+dig +short sistematizacion.itsoeh.edu.mx
+sudo ufw allow 80/tcp &amp;&amp; sudo ufw allow 443/tcp
+sudo mkdir -p /opt/plataforma-educativa
+sudo tar -xzf /tmp/plataforma-deploy.tar.gz -C /opt/plataforma-educativa
+sudo chown -R $USER:$USER /opt/plataforma-educativa
+cd /opt/plataforma-educativa
+cp .env.example .env
+nano .env
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml config
+bash infrastructure/deploy.sh
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml ps
+
+# ---- Comprobación ----
+curl -I https://sistematizacion.itsoeh.edu.mx/
+curl -s https://sistematizacion.itsoeh.edu.mx/openapi.json | head -c 200
+curl -X POST https://sistematizacion.itsoeh.edu.mx/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"id":"admin","password":"dev-admin"}'</pre>
+
+<h2>Apéndice B &mdash; Credenciales y rutas importantes</h2>
+
+<table>
+  <thead><tr><th>Concepto</th><th>Valor</th></tr></thead>
+  <tbody>
+    <tr><td>Dominio (confirmado)</td><td><code>sistematizacion.itsoeh.edu.mx</code> (con <b>ación</b>)</td></tr>
+    <tr><td>URL de la aplicación</td><td><code>https://sistematizacion.itsoeh.edu.mx/</code></td></tr>
+    <tr><td>Documentación de la API</td><td><code>https://sistematizacion.itsoeh.edu.mx/docs</code></td></tr>
+    <tr><td>Ruta del proyecto en el servidor</td><td><code>/opt/plataforma-educativa</code></td></tr>
+    <tr><td>Archivo de configuración</td><td><code>/opt/plataforma-educativa/.env</code></td></tr>
+    <tr><td>Administrador</td><td><code>admin</code> / <code>dev-admin</code></td></tr>
+    <tr><td>Docente</td><td><code>docente</code> / <code>clave-docente</code></td></tr>
+    <tr><td>Estudiante</td><td><code>estudiante</code> / <code>clave-estudiante</code></td></tr>
+    <tr><td>Guía técnica resumida</td><td><code>DEPLOY.md</code> (dentro del proyecto)</td></tr>
+    <tr><td>Credenciales locales</td><td><code>CREDENCIALES_PRUEBAS.txt</code> (dentro del proyecto)</td></tr>
+  </tbody>
+</table>
+
+<div class="pie">
+  Guía de despliegue &mdash; Plataforma Educativa IoT &mdash; Versión 1.0 &mdash; Noviembre 2026<br>
+  Documento generado para uso interno de pruebas.
+</div>
+
+</body>
+</html>

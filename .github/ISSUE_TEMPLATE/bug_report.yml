@@ -1,0 +1,59 @@
+name: Reportar un error
+description: Informa de un comportamiento inesperado o fallo de la plataforma.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar el problema. Por favor, no incluyas contraseñas, tokens ni datos personales.
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: ¿Qué ocurrió?
+      description: Describe el fallo de forma clara y breve.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: ¿Qué esperabas que ocurriera?
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      placeholder: |
+        1. Ir a ...
+        2. Hacer clic en ...
+        3. Observar el error ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afectada
+      options:
+        - Backend / API
+        - Frontend / interfaz
+        - Infraestructura / despliegue
+        - Documentación
+        - Otro
+    validations:
+      required: true
+  - type: input
+    id: entorno
+    attributes:
+      label: Entorno y versión
+      description: Local, servidor de pruebas o producción; rama/commit si aplica.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs o mensajes de error
+      description: Pega solo fragmentos sin información sensible.
+      render: shell
+    validations:
+      required: false

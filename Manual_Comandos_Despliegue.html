@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Manual de comandos — Despliegue Plataforma Educativa</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 18mm 18mm; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 10.6pt;
+    line-height: 1.45;
+    color: #141414;
+    text-align: justify;
+  }
+
+  .titlepage { text-align: center; margin-top: 8mm; margin-bottom: 10mm; }
+  .titulo { font-size: 23pt; font-weight: normal; margin: 0 0 4mm 0; line-height: 1.15; }
+  .subtitulo { font-size: 12.5pt; color: #444; font-style: italic; margin: 0 0 8mm 0; }
+  .autor { font-size: 11pt; margin: 0 0 2mm 0; }
+  .fecha { font-size: 10.5pt; color: #555; }
+  .regla { border: 0; border-top: 1.2px solid #222; margin: 8mm 0 6mm 0; }
+
+  .resumen {
+    background: #f3f3ef; border: 1px solid #c9c9c0; padding: 8px 12px;
+    margin: 4mm 0 8mm 0; text-align: justify;
+  }
+  .resumen strong { font-variant: small-caps; letter-spacing: .04em; }
+
+  h2 {
+    font-size: 14pt; font-weight: bold; margin-top: 8mm; margin-bottom: 3mm;
+    border-bottom: 0.5px solid #999; padding-bottom: 1.5mm; text-align: left;
+    page-break-after: avoid;
+  }
+  h3 { font-size: 11.5pt; font-weight: bold; margin-top: 5mm; margin-bottom: 2mm; text-align: left; page-break-after: avoid; }
+  p { margin: 0 0 2.5mm 0; }
+  ul, ol { margin: 0 0 3mm 0; padding-left: 7mm; }
+  li { margin-bottom: 1.2mm; }
+
+  code { font-family: "Consolas","Courier New",monospace; font-size: 9.4pt; background: #f0f0ec; padding: 0 2px; }
+  pre {
+    font-family: "Consolas","Courier New",monospace; font-size: 8.75pt; line-height: 1.33;
+    background: #f6f6f3; border-left: 3px solid #4a4a4a; padding: 7px 10px;
+    margin: 2mm 0 3mm 0; white-space: pre-wrap; word-wrap: break-word; page-break-inside: avoid;
+  }
+  .cmdwin { border-left-color: #2b5f96; }
+  .cmdsrv { border-left-color: #4a4a4a; }
+  .cmdfix { border-left-color: #b0621e; }
+
+  .badge {
+    font-family: "Consolas","Courier New",monospace; font-size: 8pt; font-weight: bold;
+    color: #fff; padding: 1px 5px; border-radius: 2px; margin-right: 3px;
+  }
+  .bwin { background: #2b5f96; }
+  .bsrv { background: #444; }
+  .bok  { background: #3d7a3d; }
+  .berr { background: #a8432f; }
+
+  .nota, .aviso, .consejo { padding: 6px 11px; margin: 3mm 0; font-size: 9.8pt; page-break-inside: avoid; }
+  .nota    { background: #eef3f8; border-left: 4px solid #3b6ea5; }
+  .aviso   { background: #fff3e3; border-left: 4px solid #cf7a20; }
+  .consejo { background: #edf6ee; border-left: 4px solid #4c8b4c; }
+  .nota b, .aviso b, .consejo b { font-variant: small-caps; letter-spacing: .03em; }
+
+  table { border-collapse: collapse; width: 100%; margin: 3mm 0 4mm 0; font-size: 9.4pt; }
+  thead th { border-top: 1.3px solid #1a1a1a; border-bottom: 0.9px solid #1a1a1a; padding: 5px 6px; text-align: left; font-weight: bold; }
+  tbody td { border-bottom: 0.35px solid #c4c4c4; padding: 4px 6px; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 1.3px solid #1a1a1a; }
+
+  .toc li { margin-bottom: 1mm; }
+  .salto { page-break-before: always; }
+  .pie { margin-top: 10mm; border-top: 0.5px solid #999; padding-top: 3mm; font-size: 9pt; color: #555; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="titlepage">
+  <div class="titulo">Manual de comandos utilizados para subir<br>la Plataforma Educativa al servidor</div>
+  <div class="subtitulo">Resumen operativo con explicación, resultados e incidencias resueltas</div>
+  <div class="autor">Proyecto: Plataforma Educativa IoT &middot; Despliegue de prueba</div>
+  <div class="fecha">Versión 1.0 &middot; Noviembre 2026</div>
+</div>
+
+<hr class="regla">
+
+<div class="resumen">
+  <strong>Resumen.</strong> Este manual recopila, en el orden exacto en que se ejecutaron, todos los
+  comandos empleados para verificar, empaquetar, subir y publicar la plataforma en el servidor. Cada
+  bloque indica dónde se ejecuta, qué hace y qué resultado se obtuvo. Se incluyen también los cinco
+  problemas que aparecieron durante el proceso y su solución, para que el procedimiento pueda
+  repetirse sin volver a tropezar con ellos.
+</div>
+
+<h2>Convenciones y datos fijos</h2>
+
+<p>
+  <span class="badge bwin">WIN</span> = se ejecuta en <b>PowerShell de tu Windows</b>, dentro de
+  <code>C:\Plataforma Educativa</code>.<br>
+  <span class="badge bsrv">SRV</span> = se ejecuta en el <b>servidor Linux por SSH</b>.<br>
+  <span class="badge bok">OK</span> = resultado que se esperaba y se obtuvo.<br>
+  <span class="badge berr">ERR</span> = incidencia aparecida, resuelta más adelante.
+</p>
+
+<table>
+  <thead><tr><th>Dato</th><th>Valor definitivo</th></tr></thead>
+  <tbody>
+    <tr><td>Dominio (corregido)</td><td><code>sistematizacion.itsoeh.edu.mx</code> &mdash; con <b>ación</b></td></tr>
+    <tr><td>IP pública del servidor</td><td><code>38.123.223.122</code></td></tr>
+    <tr><td>Usuario SSH</td><td><code>administrador</code> (equipo <code>itzel</code>)</td></tr>
+    <tr><td>Ruta del proyecto en el servidor</td><td><code>/opt/plataforma-educativa</code></td></tr>
+    <tr><td>Paquete subido</td><td><code>/tmp/plataforma-deploy.tar.gz</code></td></tr>
+    <tr><td>Archivo de entorno</td><td><code>/opt/plataforma-educativa/.env</code></td></tr>
+    <tr><td>Archivo de compose</td><td><code>infrastructure/compose/compose.prod.yaml</code></td></tr>
+    <tr><td>Proxy HTTPS</td><td><code>infrastructure/compose/Caddyfile</code></td></tr>
+  </tbody>
+</table>
+
+<h2>Contenido</h2>
+<ol class="toc">
+  <li>Preparación y verificación local</li>
+  <li>Comprobación del DNS</li>
+  <li>Firewall: apertura de puertos</li>
+  <li>Docker: instalación y permisos</li>
+  <li>Empaquetado y subida del proyecto</li>
+  <li>Validación y despliegue</li>
+  <li>Incidencia del 403 y su corrección</li>
+  <li>Verificación final</li>
+  <li>Comandos de operación diaria</li>
+  <li>Incidencias encontradas y soluciones</li>
+  <li>Hoja de comandos completa</li>
+</ol>
+
+<div class="salto"></div>
+
+<h2>1. Preparación y verificación local</h2>
+
+<p>Antes de subir nada se comprobó que el proyecto estuviera sano. Todo pasó.</p>
+
+<h3>1.1 Verificación rápida con el gestor local</h3>
+<pre class="cmdwin">plataforma.bat verify</pre>
+<p>Ejecuta las pruebas del backend, las del frontend, el build de producción y la validación OpenSpec. Resultado: <b>99/99</b> pruebas backend, <b>17/17</b> frontend, build OK y <code>add-platform-foundation</code> válido.</p>
+
+<h3>1.2 Comprobaciones individuales (opcionales)</h3>
+<pre class="cmdwin">cd "C:\Plataforma Educativa\backend"
+..\..\.venv\Scripts\python.exe -m unittest discover -s tests -t . -q
+
+cd "C:\Plataforma Educativa\frontend"
+npm test
+npm run build
+
+cd "C:\Plataforma Educativa"
+openspec validate add-platform-foundation --strict</pre>
+
+<div class="nota">
+  <b>Nota.</b> El backend local usa el bootstrap en memoria (<code>local_dev.py</code>) y el de producción
+  usa PostgreSQL (<code>asgi.py</code>). Se añadió el sembrado de los tres usuarios iniciales en
+  <code>app.py</code> para que el despliegue tenga credenciales desde el primer arranque.
+</div>
+
+<h2>2. Comprobación del DNS</h2>
+
+<h3>2.1 Consulta inicial (con el nombre equivocado)</h3>
+<pre class="cmdsrv">dig
+dig +short sistematizacion.itsoeh.edu.mx</pre>
+<p>
+  El primer <code>dig</code> sin argumentos solo consultó los servidores raíz: inofensivo, pero no sirvió.
+  El segundo devolvió <code>38.123.223.122</code>. Más tarde se descubrió que habíamos estado usando
+  <code>sistematizcion</code> (sin la <b>a</b>) en los archivos, cuando el nombre correcto es
+  <code>sistematizacion</code>. Hubo que corregir <code>.env.example</code>, el compose,
+  <code>DEPLOY.md</code> y la guía en PDF.
+</p>
+
+<h3>2.2 Confirmación definitiva</h3>
+<pre class="cmdsrv">dig +short sistematizacion.itsoeh.edu.mx
+curl -s ifconfig.me; echo</pre>
+<p><span class="badge bok">OK</span> Ambos comandos devolvieron <code>38.123.223.122</code>: el dominio apunta al servidor correcto.</p>
+
+<h2>3. Firewall: apertura de puertos</h2>
+
+<pre class="cmdsrv">sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp
+sudo ufw enable
+sudo ufw status</pre>
+
+<p>
+  El puerto 80 es necesario para que Let's Encrypt emita el certificado; el 443 sirve la web cifrada;
+  el 22 se añadió para <b>no perder el acceso SSH</b> al activar el firewall. Al activarlo aparece la
+  advertencia <code>Command may disrupt existing ssh connections</code>: se respondió <code>y</code>.
+</p>
+
+<p><span class="badge bok">OK</span> Salida final de <code>sudo ufw status</code>:</p>
+<pre class="cmdsrv">Status: active
+
+To                         Action      From
+--                         ------      ----
+80/tcp                     ALLOW       Anywhere
+443/tcp                    ALLOW       Anywhere
+22/tcp                     ALLOW       Anywhere
+80/tcp (v6)                ALLOW       Anywhere (v6)
+443/tcp (v6)               ALLOW       Anywhere (v6)
+22/tcp (v6)                ALLOW       Anywhere (v6)</pre>
+
+<div class="aviso">
+  <b>Advertencia.</b> Justo después de las dos primeras reglas, <code>sudo ufw status</code> mostraba
+  <code>Status: inactive</code>. Eso era normal: las reglas quedaron guardadas pero no aplicadas hasta
+  ejecutar <code>sudo ufw enable</code>.
+</div>
+
+<h3>3.1 Comprobación de puertos ocupados</h3>
+<pre class="cmdsrv">sudo ss -tulpen | grep -E ':80|:443'</pre>
+<p>
+  <span class="badge berr">ERR</span> Apareció <code>nginx</code> escuchando en 80 y 443 dentro de un
+  contenedor. Se identificó con <code>docker ps</code> (sección 4) y se paró su contenedor en la sección 5.
+</p>
+
+<div class="salto"></div>
+
+<h2>4. Docker: instalación y permisos</h2>
+
+<h3>4.1 Instalación oficial (si hiciera falta)</h3>
+<pre class="cmdsrv">sudo apt update &amp;&amp; sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release &amp;&amp; echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list &gt;/dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER</pre>
+
+<h3>4.2 Verificación de versiones</h3>
+<pre class="cmdsrv">docker --version &amp;&amp; docker compose version</pre>
+<p><span class="badge bok">OK</span> Docker version 29.8.1 y Docker Compose v5.5.1. Ya estaban instalados, así que no hizo falta ejecutar la instalación.</p>
+
+<h3>4.3 Listado de contenedores existentes</h3>
+<pre class="cmdsrv">docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}'</pre>
+<p>
+  <span class="badge berr">ERR</span> Primero dio <code>permission denied while trying to connect to the docker API</code>
+  porque el grupo <code>docker</code> aún no estaba activo en la sesión. Se resolvió de forma temporal
+  añadiendo <code>sudo</code> y de forma definitiva cerrando y reabriendo la sesión SSH.
+</p>
+
+<p>Con <code>sudo</code> aparecieron cuatro contenedores que ya había en el servidor:</p>
+<pre class="cmdsrv">sudo docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}'</pre>
+<table>
+  <thead><tr><th>Contenedor</th><th>Imagen</th><th>Puertos</th><th>Acción tomada</th></tr></thead>
+  <tbody>
+    <tr><td><code>thingsboard-proxy</code></td><td>nginx:alpine</td><td>80 y 443 (modo host)</td><td>Parado para liberar los puertos</td></tr>
+    <tr><td><code>n8n</code></td><td>n8nio/n8n</td><td>5678</td><td>No se tocó</td></tr>
+    <tr><td><code>n8n-postgres</code></td><td>postgres:15-alpine</td><td>interno 5432</td><td>No se tocó</td></tr>
+    <tr><td><code>thingsboard</code></td><td>thingsboard/tb-postgres</td><td>1883, 5683, 8080</td><td>No se tocó</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Empaquetado y subida del proyecto</h2>
+
+<h3>5.1 Generación del paquete en Windows</h3>
+<pre class="cmdwin">tar -czf plataforma-deploy.tar.gz --exclude=node_modules --exclude=.venv --exclude=.run --exclude=__pycache__ --exclude=.git --exclude=plataforma-deploy.tar.gz -C "C:\Plataforma Educativa" .</pre>
+<p>
+  Crea <code>plataforma-deploy.tar.gz</code> (479 KB) sin las carpetas pesadas ni el historial de Git.
+  Se generó además un archivo <code>.env</code> con contraseña aleatoria para PostgreSQL y el dominio
+  correcto, de modo que no fue necesario editarlo con <code>nano</code> en el servidor.
+</p>
+
+<h3>5.2 Copia al servidor</h3>
+<pre class="cmdwin">scp "C:\Plataforma Educativa\plataforma-deploy.tar.gz" administrador@38.123.223.122:/tmp/</pre>
+<p>Dejó el archivo en <code>/tmp/plataforma-deploy.tar.gz</code> tras pedir la contraseña SSH.</p>
+
+<h3>5.3 Parar el proxy que ocupaba los puertos</h3>
+<pre class="cmdsrv">sudo docker stop thingsboard-proxy
+sudo docker update --restart=no thingsboard-proxy
+sudo ss -tulpen | grep -E ':80|:443'</pre>
+<p><span class="badge bok">OK</span> Después de esto solo seguía ocupado el puerto 8080 (ThingsBoard), que no afecta a Caddy.</p>
+
+<h3>5.4 Descomprimir y preparar permisos</h3>
+<pre class="cmdsrv">sudo mkdir -p /opt/plataforma-educativa
+sudo tar -xzf /tmp/plataforma-deploy.tar.gz -C /opt/plataforma-educativa
+sudo chown -R administrador /opt/plataforma-educativa
+cd /opt/plataforma-educativa
+ls -la
+grep -E 'DOMAIN|POSTGRES_PASSWORD' .env</pre>
+<p>
+  <span class="badge berr">ERR</span> El primer <code>sudo mkdir</code> falló por contraseña mal escrita y
+  el <code>chown -R administrador:administrador</code> dio <code>grupo inválido</code>, porque en ese
+  servidor no existe un grupo con ese nombre. Se corrigió quitando la parte del grupo:
+  <code>sudo chown -R administrador /opt/plataforma-educativa</code>.
+</p>
+<p>
+  <span class="badge bok">OK</span> El <code>grep</code> confirmó
+  <code>DOMAIN=sistematizacion.itsoeh.edu.mx</code> y la contraseña generada.
+</p>
+
+<div class="salto"></div>
+
+<h2>6. Validación y despliegue</h2>
+
+<h3>6.1 Validar el compose (sin levantar nada)</h3>
+<pre class="cmdsrv">docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml config</pre>
+<p>Comprobó que las cuatro variables obligatorias existían y que las rutas de build eran correctas. Mostró los servicios <code>backend</code>, <code>db</code>, <code>frontend</code> y <code>proxy</code>.</p>
+
+<h3>6.2 Levantar todo</h3>
+<pre class="cmdsrv">bash infrastructure/deploy.sh</pre>
+<p>
+  <span class="badge berr">ERR</span> Falló con <code>permission denied</code> en el socket de Docker al
+  no tener activo el grupo. Se ejecutó la variante con <code>sudo</code>:
+</p>
+<pre class="cmdsrv">sudo bash infrastructure/deploy.sh</pre>
+<p>
+  <span class="badge bok">OK</span> Descargó <code>caddy:2-alpine</code> y <code>postgres:16-alpine</code>,
+  construyó las imágenes del backend (Python 3.13-slim) y del frontend (Node 26-alpine), creó la red y
+  los tres volúmenes, y levantó los cuatro contenedores:
+</p>
+<pre class="cmdsrv">NAME                              STATUS                   PORTS
+plataforma-educativa-backend-1    Up                       8000/tcp
+plataforma-educativa-db-1         Up (healthy)            5432/tcp
+plataforma-educativa-frontend-1   Up                       5173/tcp
+plataforma-educativa-proxy-1      Up                       0.0.0.0:80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp</pre>
+
+<h2>7. Incidencia del 403 y su corrección</h2>
+
+<h3>7.1 Síntoma</h3>
+<pre class="cmdsrv">curl -I https://sistematizacion.itsoeh.edu.mx/
+# HTTP/2 403   content-type: text/plain   via: 1.1 Caddy
+
+curl -sS -i https://sistematizacion.itsoeh.edu.mx/
+# Blocked request. This host ("sistematizacion.itsoeh.edu.mx") is not allowed.
+# To allow this host, add it to `preview.allowedHosts` in vite.config.js.</pre>
+<p>
+  Causa: <b>Vite 8</b>, usado por <code>vite preview</code> dentro del contenedor del frontend, rechaza
+  cualquier cabecera <code>Host</code> distinta de <code>localhost</code> por seguridad. El backend y el
+  login ya funcionaban correctamente.
+</p>
+
+<h3>7.2 Corrección aplicada en el servidor</h3>
+<pre class="cmdsrv">cd /opt/plataforma-educativa
+cat &gt; infrastructure/compose/Caddyfile &lt;&lt;'EOF'
+{
+    email admin@{$DOMAIN}
+}
+
+{$DOMAIN} {
+    encode zstd gzip
+
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /docs* {
+        reverse_proxy backend:8000
+    }
+
+    handle /redoc* {
+        reverse_proxy backend:8000
+    }
+
+    handle /openapi.json {
+        reverse_proxy backend:8000
+    }
+
+    handle {
+        reverse_proxy frontend:5173 {
+            header_up Host localhost
+        }
+    }
+}
+EOF
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml restart proxy</pre>
+<p>
+  La línea <code>header_up Host localhost</code> hace que Caddy presente el frontend como si la
+  petición viniera de <code>localhost</code>. El navegador sigue usando el dominio real. El comillas en
+  <code>&lt;&lt;'EOF'</code> son importantes: evitan que la shell interprete <code>{$DOMAIN}</code>.
+</p>
+
+<h3>7.3 Comprobación inmediata</h3>
+<pre class="cmdsrv">curl -I https://sistematizacion.itsoeh.edu.mx/
+# HTTP/2 200   content-type: text/html
+
+curl -s https://sistematizacion.itsoeh.edu.mx/openapi.json | head -c 200
+# {"openapi":"3.1.0","info":{"title":"Plataforma Educativa API",...</pre>
+
+<div class="aviso">
+  <b>Advertencia.</b> La ruta correcta es <code>/openapi.json</code>. La ruta
+  <code>/api/v1/openapi.json</code> devuelve <code>{"detail":"Not Found"}</code> porque FastAPI publica
+  el esquema en la raíz. Ya está corregida en <code>DEPLOY.md</code> y en la guía en PDF.
+</div>
+
+<div class="salto"></div>
+
+<h2>8. Verificación final</h2>
+
+<h3>8.1 Comprobaciones desde la terminal</h3>
+<pre class="cmdsrv">curl -I https://sistematizacion.itsoeh.edu.mx/
+curl -s https://sistematizacion.itsoeh.edu.mx/openapi.json | head -c 200
+curl -X POST https://sistematizacion.itsoeh.edu.mx/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"id":"admin","password":"dev-admin"}'</pre>
+
+<p>Resultados obtenidos:</p>
+<table>
+  <thead><tr><th>Comprobación</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>GET <code>/</code></td><td><b>HTTP 200</b>, HTML con <code>&lt;div id="root"&gt;</code></td></tr>
+    <tr><td>GET <code>/docs</code></td><td><b>HTTP 200</b></td></tr>
+    <tr><td>GET <code>/openapi.json</code></td><td><b>HTTP 200</b>, esquema OpenAPI 3.1.0</td></tr>
+    <tr><td>Login <code>admin</code> / <code>dev-admin</code></td><td>token, rol <code>administrador</code>, activo</td></tr>
+    <tr><td>Login <code>docente</code> / <code>clave-docente</code></td><td>token, rol <code>docente</code>, activo</td></tr>
+    <tr><td>Login <code>estudiante</code> / <code>clave-estudiante</code></td><td>token, rol <code>estudiante</code>, activo</td></tr>
+    <tr><td><code>/api/v1/peripherals/types</code></td><td>7 tipos para los tres roles</td></tr>
+    <tr><td><code>/api/v1/users</code> sin token</td><td><b>401</b> No autorizado (correcto)</td></tr>
+    <tr><td>Docente creando usuario</td><td><b>403</b> Prohibido (correcto)</td></tr>
+    <tr><td>Total de usuarios en la base</td><td>3</td></tr>
+  </tbody>
+</table>
+
+<div class="consejo">
+  <b>Consejo.</b> Si el navegador todavía muestra el 403 anterior, es caché: pulsa <code>Ctrl + F5</code>
+  o abre una ventana de incógnito.
+</div>
+
+<h2>9. Comandos de operación diaria</h2>
+
+<pre class="cmdsrv">cd /opt/plataforma-educativa
+
+# Estado de los contenedores (usar sudo si el grupo docker aún no está activo)
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml ps
+
+# Ver logs en directo (Ctrl+C para salir)
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml logs -f proxy
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml logs -f backend
+
+# Reiniciar un servicio
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml restart backend
+
+# Parar sin borrar datos
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml down
+
+# Borrar también la base de datos (reinicia los usuarios de prueba)
+sudo docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml down -v
+
+# Actualizar tras copiar cambios al servidor
+sudo bash infrastructure/deploy.sh</pre>
+
+<div class="aviso">
+  <b>Advertencia.</b> No arranques <code>thingsboard-proxy</code> mientras Caddy esté ocupando 80 y 443,
+  porque chocarían por los puertos. Si necesitas recuperar ThingsBoard web, hay que reorganizar el proxy.
+</div>
+
+<div class="salto"></div>
+
+<h2>10. Incidencias encontradas y soluciones</h2>
+
+<table>
+  <thead><tr><th>#</th><th>Síntoma</th><th>Causa</th><th>Solución aplicada</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Dominio escrito como <code>sistematizcion</code></td><td>Confusión entre <code>ci</code> y <code>ación</code></td><td>Corregido a <code>sistematizacion.itsoeh.edu.mx</code> en todos los archivos y en el PDF</td></tr>
+    <tr><td>2</td><td><code>ufw status</code> decía <code>inactive</code></td><td>Reglas guardadas pero firewall no activado</td><td><code>sudo ufw enable</code> tras permitir el puerto 22</td></tr>
+    <tr><td>3</td><td>80 y 443 ocupados por nginx</td><td>Contenedor <code>thingsboard-proxy</code> en modo host</td><td><code>sudo docker stop thingsboard-proxy</code> y <code>--restart=no</code></td></tr>
+    <tr><td>4</td><td><code>permission denied</code> en el socket Docker</td><td>Grupo <code>docker</code> no activo en la sesión</td><td><code>sudo</code> temporal; cerrar y reabrir SSH para la sesión nueva</td></tr>
+    <tr><td>5</td><td><code>chown: grupo inválido</code></td><td>No existe el grupo <code>administrador</code></td><td><code>sudo chown -R administrador /opt/plataforma-educativa</code></td></tr>
+    <tr><td>6</td><td><code>HTTP 403</code> en la raíz</td><td>Vite preview rechaza el Host del dominio</td><td><code>header_up Host localhost</code> en el Caddyfile y reinicio del proxy</td></tr>
+    <tr><td>7</td><td><code>{"detail":"Not Found"}</code> en openapi</td><td>Ruta incorrecta <code>/api/v1/openapi.json</code></td><td>Usar <code>/openapi.json</code>; corregido en la documentación</td></tr>
+  </tbody>
+</table>
+
+<h2>11. Hoja de comandos completa (en orden)</h2>
+
+<pre class="cmdwin">REM --- 1. Verificar proyecto en Windows ---
+plataforma.bat verify
+
+REM --- 2. Empaquetar ---
+tar -czf plataforma-deploy.tar.gz --exclude=node_modules --exclude=.venv --exclude=.run --exclude=__pycache__ --exclude=.git --exclude=plataforma-deploy.tar.gz -C "C:\Plataforma Educativa" .
+
+REM --- 3. Subir ---
+scp "C:\Plataforma Educativa\plataforma-deploy.tar.gz" administrador@38.123.223.122:/tmp/</pre>
+
+<pre class="cmdsrv"># --- 4. DNS y firewall ---
+dig +short sistematizacion.itsoeh.edu.mx
+curl -s ifconfig.me; echo
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp
+sudo ufw enable
+sudo ufw status
+sudo ss -tulpen | grep -E ':80|:443'
+
+# --- 5. Docker y contenedores existentes ---
+docker --version &amp;&amp; docker compose version
+sudo docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}'
+sudo docker stop thingsboard-proxy
+sudo docker update --restart=no thingsboard-proxy
+
+# --- 6. Descomprimir ---
+sudo mkdir -p /opt/plataforma-educativa
+sudo tar -xzf /tmp/plataforma-deploy.tar.gz -C /opt/plataforma-educativa
+sudo chown -R administrador /opt/plataforma-educativa
+cd /opt/plataforma-educativa
+grep -E 'DOMAIN|POSTGRES_PASSWORD' .env
+
+# --- 7. Desplegar ---
+docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml config
+sudo bash infrastructure/deploy.sh
+
+# --- 8. Verificar ---
+curl -I https://sistematizacion.itsoeh.edu.mx/
+curl -s https://sistematizacion.itsoeh.edu.mx/openapi.json | head -c 200
+curl -X POST https://sistematizacion.itsoeh.edu.mx/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"id":"admin","password":"dev-admin"}'</pre>
+
+<div class="pie">
+  Manual de comandos &mdash; Plataforma Educativa IoT &mdash; Versión 1.0 &mdash; Noviembre 2026<br>
+  Documento generado a partir de la sesión real de despliegue.
+</div>
+
+</body>
+</html>
