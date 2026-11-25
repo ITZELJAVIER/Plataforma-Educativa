@@ -149,9 +149,12 @@ Elige la forma que necesites:
    ```bash
    bash scripts/package.sh    # Linux/macOS
    ```
-   Los archivos quedan en la raíz del proyecto y están ignorados por git. Si se
-   publicó una etiqueta `v*`, también están en
-   [Releases](https://github.com/ITZELJAVIER/Plataforma-Educativa/releases).
+   Los archivos quedan en la raíz del proyecto y están ignorados por git.
+
+**Descarga directa de la versión `v0.1.0`:**
+[plataforma-deploy.tar.gz](https://github.com/ITZELJAVIER/Plataforma-Educativa/releases/download/v0.1.0/plataforma-deploy.tar.gz) ·
+[plataforma-deploy.zip](https://github.com/ITZELJAVIER/Plataforma-Educativa/releases/download/v0.1.0/plataforma-deploy.zip) ·
+[ver release](https://github.com/ITZELJAVIER/Plataforma-Educativa/releases/tag/v0.1.0)
 
 Guías para llevarse e imprimir:
 [Guía de despliegue (PDF)](Guia_Despliegue_Plataforma_Educativa.pdf) ·
