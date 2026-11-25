@@ -44,6 +44,7 @@ logs/
 
 # Artefactos de despliegue generados
 plataforma-deploy.tar.gz
+plataforma-deploy.zip
 
 # Archivos temporales
 *.tmp

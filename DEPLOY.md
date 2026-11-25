@@ -59,15 +59,18 @@ docker compose version
 
 ## 3. Subir el proyecto al servidor
 
-Desde PowerShell, en `C:\Plataforma Educativa`:
+Desde PowerShell, en `C:\Plataforma Educativa`, genera el paquete con el script
+del repositorio. Usa `git archive`, así que solo se incluyen archivos
+versionados: **no se empaquetan** `.env`, credenciales, `.venv`, `node_modules`
+ni logs locales.
 
 ```powershell
-tar -czf plataforma-deploy.tar.gz `
-  --exclude=node_modules --exclude=.venv --exclude=.run `
-  --exclude=__pycache__ --exclude=.git `
-  -C "C:\Plataforma Educativa" .
+.\scripts\empaquetar.ps1
 scp plataforma-deploy.tar.gz usuario@IP_DEL_SERVIDOR:/tmp/
 ```
+
+En Linux/macOS: `bash scripts/package.sh`. También puedes descargar el paquete
+desde la pestaña *Releases* de GitHub cuando exista una etiqueta `v*`.
 
 En el servidor:
 

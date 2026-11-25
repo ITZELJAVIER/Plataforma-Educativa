@@ -13,6 +13,11 @@ Todas las contribuciones notables se documentan aquí. El formato se inspira en
 - Plantillas de issues y Pull Request, política de seguridad y flujo de CI para
   backend y frontend.
 - Protección de credenciales de prueba mediante `.gitignore`.
+- Scripts `scripts/empaquetar.ps1` y `scripts/package.sh` para generar paquetes
+  `.tar.gz`/`.zip` descargables solo con archivos versionados.
+- Workflow `release.yml` que publica los paquetes en GitHub Releases al empujar
+  una etiqueta `v*`.
+- Secciones de descarga y de contenedores Docker en el README.
 
 ## [0.1.0] - 2026-11-24
 

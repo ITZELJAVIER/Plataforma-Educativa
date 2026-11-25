@@ -26,11 +26,13 @@ comunicación independiente del protocolo.
 - [Características](#-características)
 - [Arquitectura](#-arquitectura)
 - [Stack tecnológico](#-stack-tecnológico)
+- [Descarga](#-descarga)
 - [Puesta en marcha](#-puesta-en-marcha)
 - [Configuración](#-configuración)
 - [Roles y permisos](#-roles-y-permisos)
 - [API REST](#-api-rest)
 - [Pruebas y calidad](#-pruebas-y-calidad)
+- [Docker](#-docker)
 - [Despliegue](#-despliegue)
 - [Estado del cambio OpenSpec](#-estado-del-cambio-openspec)
 - [Contribuir](#-contribuir)
@@ -127,6 +129,36 @@ Plataforma-Educativa/
 | Enlace dispositivos | MQTT (adaptador) / Envelope EP1 | pendiente de fijar broker y tópicos |
 | Especificación | OpenSpec | cambio `add-platform-foundation` |
 
+## 📥 Descarga
+
+Elige la forma que necesites:
+
+1. **Clonar con git** (recomendado si vas a desarrollar):
+   ```bash
+   git clone https://github.com/ITZELJAVIER/Plataforma-Educativa.git
+   cd Plataforma-Educativa
+   ```
+2. **Descargar un ZIP desde GitHub:** [main.zip](https://github.com/ITZELJAVIER/Plataforma-Educativa/archive/refs/heads/main.zip)
+   o *Code → Download ZIP*. No incluye el historial de git.
+3. **Paquete de despliegue** (`.tar.gz` y `.zip`): se genera solo con archivos
+   versionados, por lo que **nunca contiene** `.env`, credenciales, entornos
+   virtuales ni dependencias locales:
+   ```powershell
+   .\scripts\empaquetar.ps1   # Windows
+   ```
+   ```bash
+   bash scripts/package.sh    # Linux/macOS
+   ```
+   Los archivos quedan en la raíz del proyecto y están ignorados por git. Si se
+   publicó una etiqueta `v*`, también están en
+   [Releases](https://github.com/ITZELJAVIER/Plataforma-Educativa/releases).
+
+Guías para llevarse e imprimir:
+[Guía de despliegue (PDF)](Guia_Despliegue_Plataforma_Educativa.pdf) ·
+[Manual de comandos (PDF)](Manual_Comandos_Despliegue.pdf) · versiones
+[HTML](Guia_Despliegue_Plataforma_Educativa.html) y
+[HTML](Manual_Comandos_Despliegue.html).
+
 ## 🚀 Puesta en marcha
 
 ### Requisitos
@@ -188,8 +220,8 @@ cp .env.example .env
 docker compose -f infrastructure/compose/compose.yaml up --build
 ```
 
-Expone backend en `8000` y frontend en `5173`. `compose.prod.yaml` añade Caddy
-en `80`/`443` y no publica los puertos internos.
+Expone backend en `8000` y frontend en `5173`. Para el modo con HTTPS, consulta
+la [sección Docker](#-docker) y la [guía de despliegue](DEPLOY.md).
 
 ## ⚙️ Configuración
 
@@ -280,6 +312,82 @@ Hay **99 pruebas en el backend** (unitarias, integración y contratos) y
 `openspec validate add-platform-foundation --strict`. La integración continua
 (`.github/workflows/ci.yml`) repite las pruebas y el build en cada push y PR a
 `main`.
+
+## 🐳 Docker
+
+> **Importante:** los Dockerfiles y los archivos Compose están listos, pero no
+> se han construido ni ejecutado en el entorno de documentación (Docker no
+> estaba instalado). Trátalo como una configuración preparada, no validada.
+
+### Contenedores del stack
+
+| Contenedor | Base | Función | Red / puertos | Persistencia |
+| --- | --- | --- | --- | --- |
+| `db` | `postgres:16-alpine` | Base de datos con healthcheck | red `plataforma`, interno | volumen `postgres_data` |
+| `backend` | `python:3.13-slim` | API FastAPI (punto `asgi:app`) | `8000`, interno en producción | — |
+| `frontend` | `node:26-alpine` | Vite preview del build | `5173`, interno en producción | — |
+| `proxy` | `caddy:2-alpine` | HTTPS automático y enrutamiento | `80` / `443` | `caddy_data`, `caddy_config` |
+
+Caddy envía `/api/*`, `/docs*`, `/redoc*` y `/openapi.json` al backend; el resto
+de las peticiones van al frontend. El **Gateway no está incluido**: se despliega
+de forma independiente (ver [infrastructure/gateway/README.md](infrastructure/gateway/README.md)).
+
+### 1. Arranque local con Docker Compose
+
+```bash
+cp .env.example .env
+# Ajusta .env antes de continuar.
+docker compose -f infrastructure/compose/compose.yaml up --build
+```
+
+- Frontend: <http://localhost:5173>
+- API docs: <http://localhost:8000/docs>
+- Apagar: `docker compose -f infrastructure/compose/compose.yaml down`
+- Apagar y borrar la base: `docker compose -f infrastructure/compose/compose.yaml down -v`
+
+### 2. Construir las imágenes por separado
+
+```bash
+docker build -t plataforma-backend:local ./backend
+docker build \
+  --build-arg VITE_API_BASE_URL=http://localhost:8000/api/v1 \
+  -t plataforma-frontend:local ./frontend
+```
+
+La URL de la API del frontend se fija **en tiempo de build**; cámbiala con
+`--build-arg` si el backend estará en otra dirección. Para ejecutarlas sin
+Compose necesitas además un contenedor PostgreSQL y pasar las variables de
+entorno (`SESSION_TTL_SECONDS` y las `POSTGRES_*`) con `--env-file .env`.
+
+### 3. Producción con HTTPS (4 contenedores)
+
+```bash
+cp .env.example .env
+# Cambia POSTGRES_PASSWORD y las contraseñas INITIAL_* antes de desplegar.
+bash infrastructure/deploy.sh
+```
+
+El script valida la configuración, construye las imágenes, levanta los cuatro
+servicios e imprime las URLs. Requiere que el dominio resuelva al servidor y que
+los puertos `80`/`443` estén abiertos.
+
+### 4. Operación diaria
+
+```bash
+COMPOSE="docker compose --env-file .env -f infrastructure/compose/compose.prod.yaml"
+
+$COMPOSE ps                 # estado de contenedores
+$COMPOSE logs -f backend    # logs de la API
+$COMPOSE logs -f proxy      # certificados y HTTPS
+$COMPOSE restart backend    # reiniciar un servicio
+$COMPOSE down               # apagar conservando la base de datos
+$COMPOSE down -v            # apagar y BORRAR la base de datos
+```
+
+`SESSION_TTL_SECONDS` y `POSTGRES_PASSWORD` son obligatorias en producción. Los
+usuarios iniciales solo se crean cuando la base está vacía. Si necesitas
+actualizar la plataforma, copia los cambios y vuelve a ejecutar
+`bash infrastructure/deploy.sh`.
 
 ## ☁️ Despliegue
 

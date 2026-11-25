@@ -1,0 +1,32 @@
+name: Release
+
+# Publica paquetes descargables cuando se empuja una etiqueta v* (p. ej. v0.1.0).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Generar y publicar paquetes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generar .tar.gz y .zip desde el commit etiquetado
+        run: |
+          git archive --format=tar.gz --prefix=Plataforma-Educativa/ -o plataforma-deploy.tar.gz HEAD
+          git archive --format=zip --prefix=Plataforma-Educativa/ -o plataforma-deploy.zip HEAD
+
+      - name: Publicar GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            plataforma-deploy.tar.gz plataforma-deploy.zip \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes
